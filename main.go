@@ -21,6 +21,7 @@ var (
 var tlsInfoChan = make(chan output)
 
 func connStateHook(c net.Conn, state http.ConnState) {
+    log.Printf("Remote address: %s", c.RemoteAddr())
     if state == http.StateActive {
         if cc, ok := c.(*tls.Conn); ok {
             state := cc.ConnectionState()
@@ -74,6 +75,11 @@ func getCertificateHook(helloInfo *tls.ClientHelloInfo) (*tls.Certificate, error
     return nil, nil
 }
 
+func getClientCertificate(certReqInfo *tls.CertificateRequestInfo) (*tls.Certificate, error) {
+    log.Printf("Client cert info: %#v", certReqInfo)
+    return nil, nil
+}
+
 var debugHandler http.HandlerFunc = func(w http.ResponseWriter, r *http.Request) {
     w.Header().Set("Content-Type", "text/plain")
     log.Printf("URL: %#v", r.URL)
@@ -82,6 +88,7 @@ var debugHandler http.HandlerFunc = func(w http.ResponseWriter, r *http.Request)
     log.Printf("TLS-Unique: %#v", r.TLS.TLSUnique)
     w.WriteHeader(http.StatusOK)
     w.Write([]byte(fmt.Sprintf("Headers: %#v", r)))
+    log.Printf("Server name: %s", r.TLS.ServerName)
 }
 
 func main() {
@@ -102,6 +109,8 @@ func main() {
         Handler:   debugHandler,
         TLSConfig: &tls.Config{
             GetCertificate: getCertificateHook,
+            GetClientCertificate: getClientCertificate,
+            ClientAuth: tls.RequestClientCert,
         },
     }
 
