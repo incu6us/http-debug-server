@@ -24,7 +24,6 @@ func connStateHook(c net.Conn, state http.ConnState) {
     if state == http.StateActive {
         if cc, ok := c.(*tls.Conn); ok {
             state := cc.ConnectionState()
-            state.TLSUnique
             switch state.Version {
             case tls.VersionSSL30:
                 log.Println("negotiated to Version: VersionSSL30")
