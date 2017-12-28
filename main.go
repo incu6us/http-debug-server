@@ -70,7 +70,7 @@ func getCertificateHook(helloInfo *tls.ClientHelloInfo) (*tls.Certificate, error
     }
 
     j, _ := json.Marshal(o)
-    log.Println(string(j))
+    log.Printf("Certificate hook output: %#v", string(j))
     return nil, nil
 }
 
@@ -97,7 +97,7 @@ func main() {
     }
 
     s := &http.Server{
-        Addr:      ":"+port,
+        Addr:      ":" + port,
         ConnState: connStateHook,
         Handler:   debugHandler,
         TLSConfig: &tls.Config{
